@@ -96,13 +96,12 @@ class DbgSrv {
   inline int get_port() { return dbgsrv_port_; }
 
  private:
-  static void recv_from_socket_(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
-  static void process_dbgmsgs_(uv_async_t *async);
   static void recv_from_debugger_(std::string& string, void *opq);
-  static void send_to_socket_(uv_async_t *async);
-  static void end_write_(uv_write_t *req, int status);
-  static void accept_(uv_stream_t *server, int status);
-  static void shutdown_(uv_async_t *async);
+
+  static void dbgsrv_do_clnt_(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
+  static void dbgsrv_do_send_(uv_async_t *async);
+  static void dbgsrv_do_serv_(uv_stream_t *server, int status);
+  static void dbgsrv_do_stop_(uv_async_t *async);
   static void dbgsrv_(void *);
 
   static void dbgproc_do_proc_(uv_async_t *);
