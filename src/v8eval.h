@@ -76,7 +76,7 @@ class _V8 {
 
 /// \class DbgSrv
 ///
-/// A debugger server is associate to a _V8 instance and accepts
+/// A debugger server is associated to a _V8 instance and accepts
 /// TCP/IP connections to exchange messages in the V8 debugger
 /// protocol.
 class DbgSrv {
@@ -84,7 +84,7 @@ class DbgSrv {
   DbgSrv(_V8& v8);
   ~DbgSrv();
 
-  /// \brief Start a debugger server
+  /// \brief Starts a debugger server
   /// \param port TCP/IP port the server will listen
   /// \return success or not as boolean
   ///
