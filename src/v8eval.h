@@ -111,7 +111,6 @@ class DbgSrv {
 
  private:
   _V8& v8_;
-  v8::Isolate* isolate_;
 
   enum {
     dbgsrv_offline,

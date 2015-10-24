@@ -324,7 +324,7 @@ void DbgSrv::send_to_socket_(uv_async_t *async) {
   while (!db->msg_queue_.empty()) {
     std::string& str = db->msg_queue_.back();
 
-    buf = uv_buf_init((char *)str.c_str(), str.size());
+    buf = uv_buf_init((char *)str.c_str(), (unsigned int)str.size());
     wreq = (uv_write_t *)malloc(sizeof(*wreq));
     uv_write(wreq, (uv_stream_t *)&db->dbgsrv_clnt_, &buf, 1, end_write_);
     db->msg_queue_.pop_back();

@@ -33,7 +33,7 @@ if platform == "linux" or platform == "linux2":
                      v8_dir + '/out/x64.release/obj.target/third_party/icu']
 elif platform == "darwin":
     library_dirs += [v8_dir + '/out/x64.release']
-library_dirs += [uv_dir + '.libs']
+library_dirs += [uv_dir + '/.libs']
 
 v8eval_module = Extension(
     '_v8eval',

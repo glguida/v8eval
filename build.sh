@@ -49,6 +49,7 @@ install_v8() {
   cd v8
   git checkout 4.7.68
   CFLAGS="-fPIC" CXXFLAGS="-fPIC" make x64.release V=1
+}
 
 install_libuv() {
   if [ -d $V8EVAL_ROOT/uv ]; then
@@ -60,8 +61,8 @@ install_libuv() {
   cd uv
   git checkout tags/1.7.5
   sh autogen.sh
-  ./configure
-  make
+  ./configure --with-pic --disable-shared
+  make V=1
 }
 
 build() {
