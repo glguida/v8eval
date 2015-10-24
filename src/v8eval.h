@@ -2,14 +2,14 @@
 #define V8EVAL_H_
 
 #include <string>
-#include <list>
 
-#include "uv.h"
 #include "v8.h"
 #include "v8-debug.h"
 
 /// \file
 namespace v8eval {
+
+class DbgSrv;
 
 /// \brief Initialize the V8 runtime environment
 /// \return success or not as boolean
@@ -53,11 +53,22 @@ class _V8 {
   /// If some JavaScript exception happens in runtime, the exception message is returned.
   std::string call(const std::string& func, const std::string& args);
 
+  /// \brief Start a debug server associated with the V8 instance
+  /// \param port The TCP/IP port the debugger will listen, at localhost
+  /// \return success or not as boolean
+  ///
+  /// After the debugger is successfully started, it will be possible to
+  /// send commands and receive events at the specified port. When the
+  /// debugger is started, the Javascript's "debugger" statement will
+  /// cause the V8 instance to halt and wait for instructions through
+  /// the debugger port.
+  bool debugger_enable(int port);
 
-  bool debugger_init(debugger_cb cb, void *cbopq);
-  bool debugger_send(const std::string& cmd);
-  void debugger_process();
-  void debugger_stop();
+  /// \brief Stop the debug server, if running.
+  ///
+  /// The debug server, if currently running, will be stopped, causing
+  /// connections to remote debuggers to be dropped.
+  void debugger_disable();
 
  private:
   static void debugger_message_handler(const v8::Debug::Message& message);
@@ -66,70 +77,20 @@ class _V8 {
   v8::Local<v8::Value> json_parse(v8::Local<v8::Context> context, v8::Local<v8::String> str);
   v8::Local<v8::String> json_stringify(v8::Local<v8::Context> context, v8::Local<v8::Value> value);
 
+  bool debugger_init(debugger_cb cb, void *cbopq);
+  bool debugger_send(const std::string& cmd);
+  void debugger_process();
+  void debugger_stop();
+
  private:
   v8::Isolate* isolate_;
-  v8::Isolate* dbg_isolate_;
   v8::Persistent<v8::Context> context_;
+  class DbgSrv *dbg_server_;
+  v8::Isolate* dbg_isolate_;
   debugger_cb callback_;
   void *callbackopq_;
-};
 
-/// \class DbgSrv
-///
-/// A debugger server is associated to a _V8 instance and accepts
-/// TCP/IP connections to exchange messages in the V8 debugger
-/// protocol.
-class DbgSrv {
- public:
-  DbgSrv(_V8& v8);
-  ~DbgSrv();
-
-  /// \brief Starts a debugger server
-  /// \param port TCP/IP port the server will listen
-  /// \return success or not as boolean
-  ///
-  /// The port can be set to 0 to have a port automatically assigned.
-  bool start(int port);
-
-  /// \brief Get the TCP/IP port the system is currently listening from
-  /// \return A TCP/IP port or 0 if not currently set.
-  inline int get_port() { return dbgsrv_port_; }
-
- private:
-  static void recv_from_debugger_(std::string& string, void *opq);
-
-  static void dbgsrv_do_clnt_(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
-  static void dbgsrv_do_send_(uv_async_t *async);
-  static void dbgsrv_do_serv_(uv_stream_t *server, int status);
-  static void dbgsrv_do_stop_(uv_async_t *async);
-  static void dbgsrv_(void *);
-
-  static void dbgproc_do_proc_(uv_async_t *);
-  static void dbgproc_do_stop_(uv_async_t *);
-  static void dbgproc_(void *);
-
- private:
-  _V8& v8_;
-
-  enum {
-    dbgsrv_offline,
-    dbgsrv_started,
-    dbgsrv_connected
-  } status_;
-  std::list<std::string> msg_queue_;
-
-  int dbgsrv_port_;
-  uv_tcp_t dbgsrv_serv_;
-  uv_tcp_t dbgsrv_clnt_;
-  uv_async_t dbgsrv_send_;
-  uv_async_t dbgsrv_stop_;
-  uv_thread_t dbgsrv_thread_;
-  uv_loop_t dbgsrv_loop_;
-
-  uv_async_t dbgproc_proc_;
-  uv_async_t dbgproc_stop_;
-  uv_thread_t dbgproc_thread_;
-  uv_loop_t dbgproc_loop_;
+  friend class DbgSrv;
 };
 
 }  // namespace v8eval
