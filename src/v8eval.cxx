@@ -264,6 +264,7 @@ A* container_of(B* ptr, const C A::* member) {
 }
 
 DbgSrv::DbgSrv(_V8& v8) : v8_(v8) {
+  dbgsrv_port_ = 0;
   status_ = dbgsrv_offline;
 
   // Server Loop initialization
@@ -422,6 +423,17 @@ bool DbgSrv::start(int port) {
   if (uv_tcp_bind(&dbgsrv_serv_, (const struct sockaddr*)&addr, 0)) {
     perror("bind");
     return false;
+  }
+
+  if (port == 0) {
+    int addrlen = sizeof(addr);
+    if (uv_tcp_getsockname(&dbgsrv_serv_, (struct sockaddr*)&addr, &addrlen)) {
+      perror("getsockname");
+      return false;
+    }
+    dbgsrv_port_ = ntohs(addr.sin_port);
+  } else {
+    dbgsrv_port_ = port;
   }
 
   if (uv_listen((uv_stream_t *)&dbgsrv_serv_, 0, accept_)) {

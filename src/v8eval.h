@@ -119,7 +119,7 @@ class DbgSrv {
   } status_;
   std::list<std::string> msg_queue_;
 
-  int dbgsrv_port_; /* FIXME */
+  int dbgsrv_port_;
   uv_tcp_t dbgsrv_serv_;
   uv_tcp_t dbgsrv_clnt_;
   uv_async_t dbgsrv_send_;
