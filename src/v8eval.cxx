@@ -197,10 +197,16 @@ std::string _V8::call(const std::string& func, const std::string& args) {
 }
 
 bool _V8::debugger_enable(int port) {
-  if (dbg_server_ == nullptr) {
-    dbg_server_ = new DbgSrv(*this);
+  if (dbg_server_ != nullptr) {
+    return false;
   }
-  return dbg_server_->start(port);
+  dbg_server_ = new DbgSrv(*this);
+  if (!dbg_server_->start(port)) {
+    delete dbg_server_;
+    dbg_server_ = nullptr;
+    return false;
+  }
+  return true;
 }
 
 void _V8::debugger_disable() {
