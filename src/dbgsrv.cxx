@@ -166,6 +166,10 @@ bool DbgSrv::start(int port) {
     return false;
   }
 
+  if (port != (uint16_t)port) {
+    return false;
+  }
+
   // Set up the TCP Connection.
   uv_tcp_init(&dbgsrv_loop_, &dbgsrv_serv_);
   uv_ip4_addr("127.0.0.1", port, &addr);
