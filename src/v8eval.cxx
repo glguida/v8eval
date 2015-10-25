@@ -65,6 +65,7 @@ _V8::_V8() {
   dbg_server_ = nullptr;
   dbg_isolate_ = nullptr;
   callback_ = nullptr;
+  callbackopq_ = nullptr;
 
   // Use Isolate's local storage to store a pointer to the associated
   // V8 instance. This is retrieved in the V8 debugger's callback, as
@@ -270,6 +271,9 @@ void _V8::debugger_stop() {
   v8::Debug::SetMessageHandler(nullptr);
 
   callback_ = nullptr;
+  callbackopq_ = nullptr;
+  dbg_isolate_->Dispose();
+  dbg_isolate_ = nullptr;
 }
 
 }  // namespace v8eval
